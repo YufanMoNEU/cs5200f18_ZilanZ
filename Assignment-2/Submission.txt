@@ -1,5 +1,5 @@
-Connection String: <Your Connection String starts from here.>
-Hostname: <Hostname>
-Port: <Port>
-Username: <Username>
-Password: <Password>
+Connection String: cs5200-connection1
+Hostname: cs5200-fall2018-zhang1.cqgng7fpvowy.us-east-2.rds.amazonaws.com
+Port: 3260
+Username: zilanzhang
+Password: zzl941112
