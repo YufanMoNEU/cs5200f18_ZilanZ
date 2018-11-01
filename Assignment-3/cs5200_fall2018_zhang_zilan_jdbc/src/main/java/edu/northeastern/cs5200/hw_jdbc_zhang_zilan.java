@@ -159,7 +159,53 @@ public class hw_jdbc_zhang_zilan {
     private final String DELETE_LAST_WIDGET = "DELETE FROM Widget WHERE `order`=? AND pageId = (SELECT id FROM Page WHERE title=?)";
     private final String FIND_LAST_UPDATED_PAGE_FOR_WEBSITE = "SELECT updated FROM Page WHERE websiteId=(SELECT id FROM Website WHERE name=?) ORDER BY updated DESC LIMIT 1";
     private final String DELETE_LAST_PAGE = "DELETE FROM Page WHERE updated=? AND websiteId=(SELECT id FROM Website WHERE name=?)";
+    private final String FIND_UNANSWERED_QUESTIONS = "SELECT q.text AS qText, COUNT(a.id) AS aNum FROM " +
+            "question q, `User` u, answer a WHERE u.personId = q.askedBy AND a.postedBy = u.personId AND a.correctAnswer = 0 GROUP BY q.module HAVING MAX(aNum)";
+    private final String ENDORSED_USERS_FOR_WEEK = "SELECT u.personId, CONCAT(u.firstName, \" \", u.lastName) AS fullName, approved " +
+            "FROM (" +
+            "SELECT u.personId, u.firstName, u.lastName, u.approvedUser AS approved, " +
+            "FROM question q, `User` u, answer a " +
+            "WHERE q.askedBy = u.personId AND u.personId = a.postedBy AND a.postedOn BETWEEN ? AND ? " +
+            "ORDER BY COUNT(q.endorsedByInstructor) DESC LIMIT 5" +
+            ") ORDER BY u.firstName";
 
+    // Stored Procedures
+    public void getUnansweredQuestions() {
+        try {
+            connection = Connection.getConnection();
+            statement = connection.createStatement();
+            ResultSet results = statement.executeQuery(FIND_UNANSWERED_QUESTIONS);
+            while (results.next()) {
+                String text = results.getString("qText");
+                int count = results.getInt("aNum");
+                System.out.println(text + " " + count);
+            }
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void endorsedUsersForWeek(Date start, Date end) {
+        try {
+            connection = Connection.getConnection();
+            pStatement = connection.prepareStatement(ENDORSED_USERS_FOR_WEEK);
+            pStatement.setDate(1, new java.sql.Date(start.getTime()));
+            pStatement.setDate(2, new java.sql.Date(end.getTime()));
+            ResultSet results = pStatement.executeQuery();
+            while (results.next()) {
+                String id = results.getString("u.personId");
+                String name = results.getString("fullName");
+                Boolean approved = results.getBoolean("u.approvedUser");
+                System.out.println(id + " " + name + " " + approved);
+            }
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 
     private void createDeveloper(Developer developer) {
         DeveloperDao dao = DeveloperDao.getInstance();
