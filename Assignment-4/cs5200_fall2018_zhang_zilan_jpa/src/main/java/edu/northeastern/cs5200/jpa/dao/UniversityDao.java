@@ -119,8 +119,7 @@ public class UniversityDao {
 
     public List<Section> findSectionsForStudent(Student student) {
         List<Section> sections = new ArrayList<>();
-        List<Enrollment> enrollments = student.getEnrollments();
-
+        List<Enrollment> enrollments = enrollmentRepository.findEnrollmentsByStudent(student.getId());
         for (Enrollment enrollment : enrollments) {
             sections.add(enrollment.getSection());
         }
